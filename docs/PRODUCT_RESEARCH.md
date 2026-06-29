@@ -26,5 +26,11 @@ AI SOP Studio 是 Agent 工作流资产平台，不是新的执行 harness。平
 
 1. 用户能理解“不是新 harness，而是工作流资产编译平台”。
 2. 用户能从目标生成清晰 `.soprun` 结构预览。
-3. 用户能选择 Codex / Claude Code 导出目标。
+3. 用户能选择 Codex / Claude Code 导出目标，并下载 ZIP 配置包。
 4. 页面能建立商业化预期：个人 Pro、创作者、团队 workspace。
+
+## 当前原型验证
+
+- Codex 导出包包含 `marketplace.json`、`.codex-plugin/plugin.json`、Skill、`.soprun`、evals 和 exporter 说明。
+- Claude Code 导出包包含 `.claude-plugin/plugin.json`、`CLAUDE.md`、commands、agents、Skill、`.soprun` 和 evals。
+- 该阶段仍不运行 agent loop；执行交给 Codex / Claude Code。
