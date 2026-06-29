@@ -1,0 +1,62 @@
+name: Activate Custom Domain
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "35 0 * * *"
+
+permissions:
+  contents: read
+  pages: write
+
+jobs:
+  activate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check DNS record
+        id: dns
+        shell: bash
+        run: |
+          set +e
+          CNAME=$(node - <<'NODE'
+          const dns = require('node:dns').promises;
+          dns.resolveCname('ai-sop-studio.savs-ai.com')
+            .then((records) => {
+              console.log(records.join('\n'));
+            })
+            .catch(() => process.exit(2));
+          NODE
+          )
+          STATUS=$?
+          echo "cname<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$CNAME" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          if [ "$STATUS" -ne 0 ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "DNS is not ready: no CNAME for ai-sop-studio.savs-ai.com"
+            exit 0
+          fi
+          if printf '%s\n' "$CNAME" | grep -Fxq "savanna0425.github.io"; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+            echo "DNS is ready: $CNAME"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "DNS points elsewhere: $CNAME"
+          fi
+
+      - name: Bind GitHub Pages custom domain
+        if: steps.dns.outputs.ready == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --method PUT "repos/${GITHUB_REPOSITORY}/pages" \
+            -f cname=ai-sop-studio.savs-ai.com
+
+      - name: Enable HTTPS when certificate exists
+        if: steps.dns.outputs.ready == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --method PUT "repos/${GITHUB_REPOSITORY}/pages" \
+            -f cname=ai-sop-studio.savs-ai.com \
+            -F https_enforced=true || true

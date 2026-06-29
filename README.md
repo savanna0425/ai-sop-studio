@@ -23,6 +23,6 @@ pnpm build
 
 ## 部署
 
-`main` 分支推送后，GitHub Actions 构建 `dist/` 并发布到 GitHub Pages。`public/CNAME` 绑定自定义域名 `ai-sop-studio.savs-ai.com`。
+`main` 分支推送后，GitHub Actions 构建 `dist/` 并发布到 GitHub Pages。当前先发布在 GitHub Pages 默认地址，避免 DNS 未生效时跳转到不可用子域名。
 
-DNS 和 GitHub Pages 切换步骤见 [部署说明](docs/DEPLOYMENT.md)。
+DNS 生效后，`Activate Custom Domain` workflow 会自动把 Pages 切换到 `ai-sop-studio.savs-ai.com`。手动切换步骤见 [部署说明](docs/DEPLOYMENT.md)。
